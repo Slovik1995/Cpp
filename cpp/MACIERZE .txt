@@ -1,0 +1,629 @@
+#include<iostream>
+#include<stdio.h>
+#include<iostream>
+#include <iomanip>
+#include <cstdlib>
+#include <time.h>
+#include <cmath>
+
+using namespace std;
+
+static int liczba=0;
+
+/////////////////////////////////////////KLASA MACIERZ//////////////////////////////////////////////////////////
+class macierze
+{
+public:
+ int n;
+ int *wsk;
+
+macierze();
+~macierze();
+friend istream & operator>>(istream & str, macierze & obj);
+friend ostream & operator<<(ostream & str, macierze & obj);
+macierze & operator=(const macierze & o1);
+macierze(const macierze & ob);
+//int podajn(void) {return n;};
+friend macierze operator+(const macierze & ob1, const macierze & ob2);
+friend macierze operator*(const macierze & ob1, const macierze & ob2);
+friend macierze operator-(const macierze & ob1, const macierze & ob2);
+macierze operator*(const macierze & mac);
+friend bool operator!=(const macierze & ob1, const macierze & ob2);
+friend bool operator>(const macierze & ob1, const macierze & ob2);
+friend bool operator<(const macierze & ob1, const macierze & ob2);
+};
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////KLASA LISTA////////////////////////////////////////////
+template <class T>
+class el
+{
+public:
+    T wartosc;
+    el<T> * nast;
+
+};
+
+template<class T>
+class lista
+{
+public:
+    el<T> * pierwszy;
+    lista()
+    {
+        pierwszy=0;
+    }
+    ~lista();
+    template<class X>
+    friend istream & operator>>(istream & str, lista<X> & obj);
+    template <class X>
+    friend ostream & operator<<(ostream & str, const lista<X> & obj);
+
+   lista<T> & operator=(const lista<T> & obj);
+   template <class X>
+   friend lista<X> operator+(const lista<X> & ob1, const lista<X> & ob2);
+   template <class X>
+   friend bool operator==(const lista<X> & ob1, const lista<X> &ob2);
+   template <class X>
+   friend bool operator>(const lista<X> & ob1, const lista<X> & ob2);
+   lista<T> (const lista<T> & obj);
+
+   void mersor(void);
+   void podziel(lista<T> & a, lista<T> & b);
+   void scalanie(lista<T> &a, lista<T> &b);
+
+   void sortuj(void);
+
+};
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////MAIN////////////////////////////////////////////////////////
+int main(void)
+{
+
+lista<macierze> A;
+lista<macierze> B;
+lista<macierze> C;
+
+cin>>A;
+cin>>A;
+cin>>A;
+cin>>B;
+cin>>B;
+
+C=A+B;
+C=A+B;
+cout<<C;
+C.mersor();
+cout<<C;
+    return 0;
+}
+/////////////////////////////////////METODY LISTY/////////////////////////////////////////////////////////////
+template<class T>
+bool operator>(const lista<T> & ob1, const lista<T>& ob2)
+{
+   bool war=true;
+   if(ob1.pierwszy==0 || ob2.pierwszy==0) {cout<<"przynajmniej jedna lista jest pusta"<<endl; war=false; return war;}
+
+   else
+   {
+    el<T>* wsk1=ob1.pierwszy;
+    el<T>* wsk2=ob2.pierwszy;
+
+        while(wsk1!=0 && wsk2!=0)
+
+        {
+           wsk1=wsk1->nast;
+           wsk2=wsk2->nast;
+        }
+
+   if ((wsk2!=0)||(wsk1==0 && wsk2==0)) war=false;
+   }
+    return war;
+}
+
+template<class T>
+bool operator==(const lista<T> & ob1, const lista<T> &ob2)
+{
+  bool yyy=true;
+  el<T>* wsk1;
+  el<T>* wsk2;
+  wsk1=ob1.pierwszy;
+  wsk2=ob2.pierwszy;
+
+  while(wsk1!=0 && wsk2!=0)
+    {
+
+      if (wsk1->wartosc!=wsk2->wartosc)
+      {
+
+          yyy=false;
+          return yyy;
+
+      }
+       wsk1=wsk1->nast;
+          wsk2=wsk2->nast;
+    }
+    if(wsk1!=0 || wsk2!=0) {yyy=false; }
+
+  return yyy;
+}
+
+template<class T>
+lista<T> operator+(const lista<T> & ob1, const lista<T> & ob2)
+{
+    lista<T> ob3;
+    el<T> * pom;
+    el<T> * wsk;
+    el<T> *pom2;
+    pom=ob1.pierwszy;
+    while(pom!=0)
+        {
+          wsk=new el<T>;
+          wsk->wartosc=pom->wartosc;
+          if (ob3.pierwszy==0) {ob3.pierwszy=wsk; pom2=wsk;}
+          else {
+                pom2->nast=wsk;
+                pom2=pom2->nast;
+               }
+          pom=pom->nast;
+
+        }
+     pom=ob2.pierwszy;
+     while(pom!=0)
+        {
+          wsk=new el<T>;
+          wsk->wartosc=pom->wartosc;
+          if (ob3.pierwszy==0) {ob3.pierwszy=wsk; pom2=wsk;}
+          else {
+                pom2->nast=wsk;
+                pom2=pom2->nast;
+               }
+          pom=pom->nast;
+
+        }
+
+     pom2->nast=0;
+
+    return ob3;
+
+}
+template <class T>
+lista<T>::lista(const lista<T> & obj)
+{
+
+    el<T> *wsk;
+    el<T> * pom;
+    el<T> * pom2;
+    wsk=obj.pierwszy;
+    this->pierwszy=0;
+    while(wsk!=0)
+    {
+        pom2=new el<T>;
+        pom2->wartosc=wsk->wartosc;
+        if (this->pierwszy==0) {this->pierwszy=pom2; pom=pom2;}
+        else {
+                pom->nast=pom2;
+                pom=pom->nast;
+             }
+        wsk=wsk->nast;
+
+    }
+    pom->nast=0;
+
+}
+template <class T>
+lista<T> & lista<T>::operator=(const lista<T> & obj)
+{
+
+   if (this==&obj) return *this;
+
+   el<T> * wsk;
+   el<T> * bazowy;
+   el<T> * pom;
+   el<T> * pom2;
+   el<T> * pom3;
+   bazowy=obj.pierwszy;
+
+   pom=this->pierwszy;
+   pom3=pom2=pom;
+   while(pom3)
+   {
+       pom=0;
+       pom2=pom2->nast;
+       delete pom3;
+       pom3=pom2;
+   }
+
+   while(bazowy!=0)
+    {
+
+        wsk=new el<T>;
+        wsk->wartosc=bazowy->wartosc;
+        if(pom==0) {this->pierwszy=wsk; pom=wsk;}
+        else {
+                pom->nast=wsk;
+                pom=pom->nast;
+             }
+        bazowy=bazowy->nast;
+    }
+    pom->nast=0;
+
+
+    return *this;
+}
+
+template <class T>
+lista<T>::~lista<T>()
+{
+    if (pierwszy!=0)
+    {
+        el<T> * wsk;
+        while (pierwszy!=0)
+        {
+            wsk=pierwszy;
+            pierwszy=pierwszy->nast;
+            delete wsk;
+
+        }
+    }
+}
+template <class T>
+istream & operator>>(istream & str, lista<T> & obj)
+{
+    el<T>* wsk;
+    el<T> *pom;
+    pom=obj.pierwszy;
+
+    wsk=new el<T>;
+    str >> wsk->wartosc;
+    wsk->nast=0;
+
+    if (pom==0) obj.pierwszy=wsk;
+
+
+    else
+    {
+        while(pom->nast!=0)
+            pom=pom->nast;
+        pom->nast=wsk;
+    }
+
+  return str;
+
+}
+template<class T>
+ostream & operator<<(ostream & str,const lista<T> & obj)
+{
+   el<T> * wsk;
+   wsk=obj.pierwszy;
+   while (wsk!=0)
+        {
+            str << wsk->wartosc;
+            str<<" ";
+            wsk=wsk->nast;
+        }
+   return str;
+
+
+}
+
+
+/////////////////////////////////////SORTOWANIE///////////////////////////////////////////////////////////////
+template<class T>
+void lista<T>::podziel(lista & a, lista & b)
+{
+    int war=0;
+    el<T>* pa, *pb;
+    el<T>*pom2;
+    el<T>*pom=pierwszy;
+    while(pom)
+    {
+       pom2=new el<T>;
+       pom2->wartosc=pom->wartosc;
+
+
+
+        if ((a.pierwszy==0)&&(war==0)) { a.pierwszy=pom2; pa=a.pierwszy; pa->nast=0; war=1;}
+        else if (war==0){
+                        pb->nast=pom2;
+                        pb=pb->nast;
+                        pb->nast=0;
+                        war=1;
+                     }
+
+        else if (war==1)
+            {
+                war=0;
+                if (b.pierwszy==0) {b.pierwszy=pom2; pb=b.pierwszy; pb->nast=0;}
+                else {
+                        pb->nast=pom2;
+                        pb=pb->nast;
+                        pb->nast=0;
+                     }
+            }
+pom=pom->nast;
+
+    }
+
+    return;
+}
+template <class T>
+void lista<T>::scalanie(lista &a, lista &b)
+{
+    int x=1;
+   el<T> *tmp;
+    el<T>*usuwany;
+    tmp=pierwszy;
+
+
+    while(a.pierwszy && b.pierwszy)
+    {
+
+
+        if(a.pierwszy->wartosc > b.pierwszy->wartosc)
+
+        {   if (x==1) {tmp->wartosc=b.pierwszy->wartosc; x=0; }
+            else {
+
+                    tmp->nast->wartosc=b.pierwszy->wartosc;
+
+                    tmp=tmp->nast;
+
+            }
+           usuwany=b.pierwszy;
+           b.pierwszy=b.pierwszy->nast;
+           delete usuwany;
+        }
+
+        else
+        {
+
+            if (x==1) {tmp->wartosc=a.pierwszy->wartosc; x=0; }
+            else {
+                    tmp->nast->wartosc=a.pierwszy->wartosc;
+
+
+                    tmp=tmp->nast;
+            }
+            usuwany=a.pierwszy;
+            a.pierwszy=a.pierwszy->nast;
+            delete usuwany;
+        }
+
+
+    }
+
+
+    while(b.pierwszy)
+    {
+
+
+        tmp->nast->wartosc=b.pierwszy->wartosc;
+        usuwany=b.pierwszy;
+        b.pierwszy=b.pierwszy->nast;
+        delete usuwany;
+        tmp=tmp->nast;
+
+
+    }
+
+    if(a.pierwszy)
+    {
+
+        tmp->nast->wartosc=a.pierwszy->wartosc;
+        usuwany=a.pierwszy;
+        a.pierwszy=a.pierwszy->nast;
+        delete usuwany;
+        tmp=tmp->nast;
+
+    }
+
+tmp->nast=0;
+    return;
+}
+template <class T>
+void lista<T>::mersor(void)
+{
+    lista<T> a;
+    lista<T> b;
+
+    if (pierwszy!=0 && pierwszy->nast!=0)
+    {
+
+        podziel(a,b);
+
+        a.mersor();
+
+        b.mersor();
+
+        scalanie(a,b);
+
+    }
+   return;
+}
+////////////////////////////////////////////////SORTUJ/////////////////////////////////////////////////
+template<class T>
+void lista<T>::sortuj(void)
+{
+   if (this->pierwszy==0) return;
+   T tmp;
+   tmp=this->pierwszy->wartosc;
+   el<T>* wsk, *pom,*najmn;
+   najmn=pom=wsk=this->pierwszy;
+
+   while(wsk!=0)
+   {
+
+        while(pom!=0)
+        {
+
+            if(pom->wartosc<najmn->wartosc)
+            najmn=pom;
+            pom=pom->nast;
+        }
+        tmp=wsk->wartosc;
+        wsk->wartosc=najmn->wartosc;
+        najmn->wartosc=tmp;
+        wsk=wsk->nast;
+        najmn=pom=wsk;
+
+   }
+   return;
+}
+////////////////////////////////////////METODY KLADY MACIERZE///////////////////////////////////////////////
+macierze::macierze()
+{
+
+    n=0;
+    wsk=0;
+
+}
+
+macierze::~macierze()
+{
+
+ delete [] wsk;
+ wsk=0;
+
+}
+
+
+istream & operator>>(istream & str, macierze & obj)
+{
+  int liczba;
+
+
+  str>>liczba;
+
+  if (obj.n!=liczba)
+  {
+    delete [] obj.wsk;
+    obj.wsk = new int [liczba*liczba];
+    obj.n=liczba;
+  }
+
+int k=obj.n*obj.n;
+  for(int i=0; i<k; i++)
+   {
+    str>>obj.wsk[i];
+
+   }
+
+return str;
+}
+
+ostream & operator<<(ostream & str, macierze & obj)
+{
+  int k=obj.n*obj.n;
+
+        str<<endl<<",,";
+        for (int z=1; z<=2*(obj.n-2)+1; z++) str<<" ";
+        str<<",,";
+        str<<endl;
+  for (int i=0; i<k; i++)
+    {
+        if((i % obj.n)==0) str<<'|';
+        str<<obj.wsk[i];
+        if((i%obj.n)!=obj.n-1) str<<" ";
+        if ((i!=0)&&((i % obj.n)==obj.n-1)) str<<'|'<<endl;
+    }
+    str<<"''";
+        for (int z=1; z<=2*(obj.n-2)+1; z++) str<<" ";
+        str<<"''";
+  return str;
+
+}
+
+macierze & macierze::operator=(const macierze & o1)
+{
+    if (this==&o1)
+        return *this;
+    else
+      delete [] this->wsk;
+      this->n=o1.n;
+      this->wsk= new int[o1.n*o1.n];
+      int k = o1.n;
+      k=k*k;
+      for (int i=0; i<k; i++)
+        this->wsk[i]=o1.wsk[i];
+      return *this;
+}
+
+macierze::macierze(const macierze & ob)
+{
+    this->wsk= new int[ob.n*ob.n];
+    this->n=ob.n;
+    int k=ob.n*ob.n;
+    for(int i=0; i<k; i++)
+        this->wsk[i]=ob.wsk[i];
+
+}
+
+macierze operator+(const macierze & ob1, const macierze & ob2)
+{
+  macierze ob3;
+
+  ob3.n=ob1.n;
+  int k=ob1.n*ob1.n;
+  ob3.wsk=new int [k];
+  for(int i=0; i<k; i++)
+        ob3.wsk[i]=ob1.wsk[i]+ob2.wsk[i];
+  return ob3;
+
+}
+
+macierze operator-(const macierze & ob1, const macierze & ob2)
+{
+  macierze ob3;
+
+  ob3.n=ob1.n;
+  int k=ob1.n*ob1.n;
+  ob3.wsk=new int [k];
+  for(int i=0; i<k; i++)
+        ob3.wsk[i]=ob1.wsk[i]-ob2.wsk[i];
+  return ob3;
+
+}
+
+macierze macierze::operator*(const macierze & mac)
+{
+  static macierze o1;
+  delete o1.wsk;
+  o1.n=mac.n;
+
+  o1.wsk=new int[mac.n*mac.n];
+  int i,j,k,wynik;
+
+  for(i = 0; i < mac.n; i++)
+    for(j = 0; j < mac.n; j++)
+    {
+      wynik = 0;
+      for(k = 0; k < mac.n; k++) wynik += this->wsk[k+j*mac.n]* mac.wsk[i+k*mac.n];
+      o1.wsk[i+j*mac.n]= wynik;
+    }
+  return o1;
+}
+
+
+ bool operator!=(const macierze & ob1, const macierze & ob2)
+{
+  if ((*ob1.wsk) !=(*ob2.wsk)) return true;
+  return false;
+}
+
+ bool operator>(const macierze & ob1, const macierze & ob2)
+ {
+     if ((*ob1.wsk) > (*ob2.wsk)) return true;
+     return false;
+
+ }
+
+  bool operator<(const macierze & ob1, const macierze & ob2)
+ {
+     if ((*ob1.wsk) < (*ob2.wsk)) return true;
+     return false;
+
+ }
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+

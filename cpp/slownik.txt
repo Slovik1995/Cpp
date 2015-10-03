@@ -1,0 +1,110 @@
+#include <iostream>
+#include <stdio.h>
+#include <iostream>
+#include <iomanip>
+#include <cstdlib>
+#include <time.h>
+#include <cmath>
+#include <cstdlib>
+#include <cstring>
+#include <climits>
+#include <conio.h>
+#include <map>
+#include <cstring>
+
+using namespace std;
+
+void wypisz(map<string, string> &y)
+{
+    map<string,string>::iterator i=y.begin();
+    if(i==y.end()) { cout<<"slownik jest pusty"<<endl; return;}
+    for(; i!=y.end(); i++) cout<<i->first<<" --> "<<i->second<<endl;
+}
+
+
+void dodaj(map<string, string> &y)
+{
+  string a,b;
+  while(1)
+  {
+    cout<<"Podaj znaczenie polskie (exit aby wyjsc):"<<endl;
+    cin>>a;
+    if(a=="exit") return;
+    cout<<"Podaj znaczenie angielskie:"<<endl;
+    cin>>b;
+    if(b=="exit") return;
+    y.insert(std::pair<string,string>(a,b));
+    system("cls");
+  }
+}
+
+int tlumacz(map<string, string> &y)
+{
+   int warunek=1;
+   map<string,string>::iterator wsk;
+   if(y.begin()==y.end()) {cout<<"slownik jest pusty"<<endl; return 1;}
+   int wybor;
+   string wyraz;
+
+    do{
+        cout<<"Tlumacz na:"<<endl<<"1 - angielski"<<endl<<"2 - polski"<<endl;
+        cin>>wybor;
+        system("cls");
+    }while(wybor!=1 && wybor!=2);
+
+      while(1)
+    {
+       cout<<"Podaj wyraz (exit aby wyjsc):"<<endl;
+       cin>>wyraz;
+       if(wyraz=="exit") return 0;
+       if(wybor==1)
+       {
+        wsk=y.find(wyraz);
+        if(wsk==y.end())
+            {
+                cout<<"Nie zdefiniowano tego wyrazu"<<endl;
+                while(!kbhit()); system("cls");
+            continue;
+            }
+         cout<<wsk->second<<endl;
+       }
+       if(wybor==2)
+       {
+          map<string,string>::iterator i=y.begin();
+          for(; i!=y.end(); i++)
+          {
+              if(i->second==wyraz)
+              {
+                  cout<<i->first<<endl;
+                  warunek=0;
+                 //  return 1;
+              }
+          }
+           if(warunek==1) cout<<"Nie zdefiniowano tego wyrazu"<<endl;
+           warunek=1;
+
+       }
+      while(!kbhit()); system("cls");
+    }
+}
+
+
+int main(void)
+{
+    map<string, string> x;
+    int wybor;
+    int war;
+    while(1)
+    {
+        cout<<"Wybierz:"<<endl<<"1 - dodaj"<<endl<<"2 - tlumacz"<<endl<<"3 - wypisz"<<endl<<"4 - exit"<<endl;
+        cin>>wybor;
+        system("cls");
+
+        if(wybor==1) {dodaj(x); system("cls");}
+        else if(wybor==2) {war=tlumacz(x); if(war) while(!kbhit()); system("cls");}
+        else if(wybor==3) {wypisz(x); while(!kbhit()); system("cls");}
+        else if(wybor==4) break;
+
+    }
+    return 0;
+}

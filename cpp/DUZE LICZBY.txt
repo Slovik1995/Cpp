@@ -1,0 +1,1424 @@
+#include <iostream>
+#include <stdio.h>
+#include <iostream>
+#include <iomanip>
+#include <cstdlib>
+#include <time.h>
+#include <cmath>
+#include <cstdlib>
+#include <cstring>
+#include <climits>
+#include <conio.h>
+
+using namespace std;
+
+class liczba
+{
+  public:
+
+    char znak;
+    unsigned char *poczatek;
+    unsigned int dl;
+    liczba(){poczatek=new unsigned char[1]; *poczatek=0; dl=1; znak='+';};
+    ~liczba(){delete [] poczatek;}
+    liczba &operator=(const liczba &x);
+    liczba(const liczba&x);
+    friend istream& operator>>(istream & str, liczba& x);
+    friend ostream & operator<<(ostream& str, liczba &x);
+    friend liczba operator+(const liczba &a, const liczba &b);
+    friend liczba operator-(const liczba &a, const liczba &b);
+    friend bool operator<(const liczba&a, const liczba &b);
+    bool mniejszy_modul(const liczba&a, const liczba &b);
+
+};
+
+
+class liczba2: public liczba
+{
+public:
+  friend liczba2 operator*(const liczba2&a, const liczba2 &b);
+  friend liczba2 operator%(const liczba2&a, const liczba2 &b);
+  friend liczba2 operator/(const liczba2&a, const liczba2 &b);
+  liczba2& operator=(const liczba2 &x);
+  liczba2& operator=(const liczba &x);
+  //liczba2(const liczba &x);
+  //liczba2(const liczba2 &x);
+  liczba2(){};
+  friend bool operator==(const liczba2 &a, const liczba2& b);
+  ~liczba2(){dl=1;}
+};
+
+bool mniejszy_modul(const liczba&a, const liczba &b);
+void konwertuj(string &, liczba2&);
+///==========================================================================MAIN====
+int main(void)
+{
+ liczba2 a;
+ liczba2 b;
+ liczba2 c;
+char wybor='a';
+char q;
+    while(1)
+        {
+            do{
+            cout<<"======================"<<endl<<"WYBIERZ DZIALANIE:"<<endl;
+            cout<<"1 - DODAWANIE"<<endl<<"2 - ODEJMOWANIE"<<endl<<"3 - MNOZENIE"<<endl<<"4 - DZIELENIE"<<endl
+            <<"5 - EXIT"<<endl<<"======================"<<endl;
+
+
+                cin>>wybor;
+                while(cin.get(q) && q!='\n');
+                system("cls");
+              }
+            while(wybor!='1' && wybor!='2' && wybor!='3' && wybor!='4' && wybor!='5');
+            if(wybor=='5') exit(0);
+            cout<<"PODAJ LICZBE A: "<<endl;
+            cin>>a;
+            cout<<endl<<"PODAJ LICZBE B: "<<endl;
+            cin>>b;
+
+            switch(wybor)
+                {
+                    case '1': c=a+b;
+                              break;
+                    case '2': c=a-b;
+                              break;
+                    case '3': c=a*b;
+                              break;
+                    case '4': c=a/b;
+                              break;
+                }
+            cout<<endl<<"WYNIK: "<<endl<<c<<endl<<endl;
+            while(1)
+            if(kbhit()) { system("cls"); break; }
+
+        }
+
+
+return 0;
+}
+
+///=======================================================================================FUNKCJE=========
+///=======================================================================================MNIEJSZY MODUL=========
+bool mniejszy_modul(const liczba&a, const liczba &b)
+{
+        if (a.dl>b.dl) return false;
+        if (a.dl<b.dl) return true;
+
+        unsigned char *poma, *pomb;
+        unsigned char x,y;
+
+        poma=a.poczatek;
+        pomb=b.poczatek;
+
+        for (unsigned int i=1; i<=a.dl; i++)
+            {
+              if (i%2)
+                    {
+                        if ((*poma>>4)>(*pomb>>4)) return false;
+                        else if  ((*poma>>4)<(*pomb>>4)) return true;
+                    }
+              else
+                    {
+
+                        x=*poma<<4;
+                        y=*pomb<<4;
+
+                        if ((x>>4)>(y>>4)) return false;
+                        else if ((x>>4)<(y>>4)) return true;
+                        poma++;
+                        pomb++;
+                    }
+            }
+            return false;
+    }
+
+///====================================================================================OPERATOR<
+bool operator<(const liczba&a, const liczba &b)
+    {
+        if ((a.dl==1)&&(b.dl==1)&&(*a.poczatek==0)&&(*b.poczatek==0)) return false;
+
+        if (a.dl>b.dl)
+            {
+                return false;
+            }
+        else if (a.dl<b.dl)
+            {
+                return true;
+            }
+        unsigned char *poma, *pomb;
+        unsigned char x,y;
+
+        poma=a.poczatek;
+        pomb=b.poczatek;
+
+        for (unsigned int i=1; i<=a.dl; i++)
+            {
+              if (i%2)
+                    {
+                        if ((*poma>>4)>(*pomb>>4)) return false;
+                        else if  ((*poma>>4)<(*pomb>>4)) return true;
+                    }
+              else
+                    {
+                        x=*poma<<4;
+                        y=*pomb<<4;
+
+                        if ((x>>4)>(y>>4)) return false;
+                        else if ((x>>4)<(y>>4)) return true;
+                        poma++;
+                        pomb++;
+                    }
+            }
+            return false;
+    }
+///===================================================================================REALLOCATE2
+
+void reallocate2(liczba &x, unsigned int wolne)
+{
+
+  unsigned char *poczatek, *wsk, *pom, maska_zero, wynik;
+  unsigned int odlicz, dl_oryginal, dl_oryginalna2,dl_oryginalna3;
+  dl_oryginalna2=x.dl;
+
+  if (wolne==0) x.dl=x.dl-1;
+  else x.dl=x.dl-wolne;
+  dl_oryginal=x.dl;
+  dl_oryginalna3=x.dl;
+
+  if ((x.dl%2)&&(wolne==0))
+    {
+        poczatek=x.poczatek;
+        wsk=pom=x.poczatek;
+        odlicz=x.dl;
+        while(odlicz>0)
+            {
+                if (odlicz%2)
+                    {
+                        *wsk=*wsk<<4;
+                    }
+                else
+                    {
+                        pom++;
+                        wynik=*pom;
+                        wynik=wynik>>4;
+                        *wsk=(*wsk|wynik);
+                        wsk++;
+                    }
+                odlicz--;
+            }
+       }
+
+  else
+    {
+      unsigned char kratka;
+      unsigned char * wsk, *poczatek, *pom;
+      unsigned int odlicz;
+      unsigned int dl_tab1;
+      dl_tab1= (x.dl%2) ? (x.dl/2)+1 : x.dl/2;
+      poczatek=wsk=new unsigned char [dl_tab1];
+      pom=x.poczatek;
+      pom=pom+(wolne/2);
+      odlicz=x.dl;
+
+
+      while(odlicz>0)
+        {
+          if ((odlicz%2)&&(wolne==0))
+            {
+             *wsk=(*wsk|(*pom>>4));
+             wsk++;
+            }
+           else if ((odlicz%2==0)&&(wolne==0))
+            {
+             *wsk=*pom<<4;
+             pom++;
+            }
+          else if ((dl_oryginal%2)&&(dl_oryginalna2%2==0)&&(dl_oryginalna3%2==1))
+            {
+                kratka=*pom<<4;
+                *wsk=kratka;
+                pom++;
+                dl_oryginal--;
+            }
+          else if((dl_oryginal%2==0)&&(dl_oryginalna2%2==0)&&(dl_oryginalna3%2==1))
+            {
+              *wsk=*wsk|(*pom>>4);
+              wsk++;
+              dl_oryginal--;
+            }
+          else if ((dl_oryginal%2)&&(dl_oryginalna2%2==1)&&(dl_oryginalna3%2==0))
+            {
+                kratka=*pom>>4;
+                *wsk=(*wsk|kratka);
+                dl_oryginal--;
+                wsk++;
+            }
+          else if ((dl_oryginal%2==0)&&(dl_oryginalna2%2==1)&&(dl_oryginalna3%2==0))
+            {
+               kratka=*pom<<4;
+              *wsk=kratka;
+              pom++;
+              dl_oryginal--;
+            }
+           else if ((dl_oryginal%2)&&(dl_oryginalna2%2==0)&&(dl_oryginalna3%2==0))
+            {
+                kratka=*pom<<4;
+                *wsk=*wsk|kratka>>4;
+                pom++;
+                wsk++;
+                dl_oryginal--;
+            }
+          else if((dl_oryginal%2==0)&&(dl_oryginalna2%2==0)&&(dl_oryginalna3%2==0))
+            {
+               kratka=*pom>>4;
+              *wsk=kratka<<4;
+              dl_oryginal--;
+            }
+          else if ((dl_oryginal%2)&&(dl_oryginalna2%2==1)&&(dl_oryginalna3%2==1))
+            {
+                *wsk=*pom;
+                dl_oryginal--;
+            }
+          else if ((dl_oryginal%2==0)&&(dl_oryginalna2%2==1)&&(dl_oryginalna3%2==1))
+            {
+              *pom=*pom<<4;
+              *pom=*pom>>4;
+              *wsk=(*wsk|(*pom));
+              wsk++;
+              pom++;
+              dl_oryginal--;
+            }
+          odlicz--;
+
+        }
+
+     delete [] x.poczatek;
+     x.poczatek=poczatek;
+    }
+}
+
+///===================================================================================REALLOCATE
+void reallocate(liczba & x)
+{
+  unsigned char *poczatek, *wsk, *pom, maska_zero;
+  poczatek=wsk = new unsigned char [(x.dl/2)+1];
+  maska_zero='\007';
+  maska_zero=maska_zero>>8;
+
+  *wsk='\007';
+  *wsk=*wsk>>2;
+  *wsk=*wsk<<4;
+  pom=x.poczatek;
+  for(unsigned int i=1; i<=x.dl; i++)
+    {
+        if (i%2)
+        {
+            *wsk=(*pom>>4)|*wsk;
+            wsk++;
+            *wsk=maska_zero;
+        }
+        else
+        {
+            *pom=*pom<<4;
+            *wsk=*pom;
+            pom++;
+        }
+    }
+  delete [] x.poczatek;
+  x.poczatek=poczatek;
+  x.dl=x.dl+1;
+}
+///======================================================================================OPERATOR+
+liczba operator+(const liczba &a, const liczba &b)
+{
+    if ((a.znak=='+')&&(b.znak=='-'))
+    {
+        if (mniejszy_modul(a,b))
+        {
+
+            liczba c;
+            liczba d=b;
+            d.znak='+';
+            c=d-a;
+            c.znak='-';
+            return c;
+        }
+        else
+        {
+
+            liczba c;
+            liczba d=b;
+            d.znak='+';
+            c=a-d;
+            c.znak='+';
+            return c;
+        }
+
+
+    }
+
+    if ((a.znak=='-')&&(b.znak=='+'))
+    {
+        if (mniejszy_modul(a,b))
+        {
+            liczba c;
+            liczba d=a;
+            d.znak='+';
+            c=b-d;
+            c.znak='+';
+            return c;
+        }
+        else
+        {
+            liczba c;
+            liczba d=a;
+            d.znak='+';
+            c=d-b;
+            if ((a.dl!=b.dl)||((b.dl==1)&&(*b.poczatek==0)&&((a.dl!=1)||(*a.poczatek!=0)))) c.znak='-';               ///<<<====w tym miejscu jesli w main mamy -10 + 10 to wynik to -0
+            return c;
+        }
+
+
+    }
+
+
+
+  unsigned char maska_lewa, maska_prawa,maska_pom, maska_pusta;
+  unsigned int dl_a, dl_b, dl_tab,przesuniecie_a, przesuniecie_b,przesuniecie_c, odliczA, odliczB, odliczC;
+  unsigned char *wska, *wskb, *wskc;
+  int bufor, wynik;
+  int cyfraA, cyfraB;
+
+  maska_lewa='\007';
+  maska_lewa=maska_lewa>>8;
+  maska_lewa=!maska_lewa;
+  maska_prawa=maska_lewa;
+  maska_prawa=maska_prawa>>4;
+  maska_lewa=maska_lewa<<4;
+  maska_pusta='\007';
+  maska_pusta=maska_pusta>>8;
+
+  liczba C;
+ if ((a.znak=='-')&&(b.znak=='-')) if ((!((a.dl==b.dl==1)&&(*a.poczatek==0)))||((a.dl==1)&&(*a.poczatek==0)&&((b.dl!=1)||((b.dl==1)&&(*b.poczatek!=0))))) C.znak='-';
+
+  dl_a=a.dl;
+  dl_b=b.dl;
+  dl_tab=C.dl= (dl_a>dl_b) ? dl_a : dl_b;
+  if (dl_tab%2) dl_tab=(dl_tab/2)+1;
+  else dl_tab=dl_tab/2;
+
+  przesuniecie_a=(dl_a%2) ? dl_a/2 : (dl_a/2)-1;
+  przesuniecie_b=(dl_b%2) ? dl_b/2 : (dl_b/2)-1;
+  przesuniecie_c=(C.dl%2) ? C.dl/2 : (C.dl/2)-1;
+  wska=a.poczatek+przesuniecie_a;
+  wskb=b.poczatek+przesuniecie_b;
+
+  C.poczatek=new unsigned char [dl_tab];
+  wskc=C.poczatek;
+  *wskc=maska_pusta;
+  wskc=wskc+przesuniecie_c;
+  *wskc=maska_pusta;
+  odliczA=dl_a;
+  odliczB=dl_b;
+  odliczC=C.dl;
+bufor=0;
+  while((odliczA>0)||(odliczB>0))
+    {
+        if ((odliczA>0)&&(odliczA %2)) {maska_pom=(*wska>>4); cyfraA=maska_pom; odliczA--; wska--;}
+        else if(odliczA>0){maska_pom=(*wska<<4); maska_pom=(maska_pom>>4); cyfraA=maska_pom; odliczA--;}
+        else cyfraA=0;
+
+        if ((odliczB>0)&&(odliczB %2)) {maska_pom=(*wskb>>4); cyfraB=maska_pom; odliczB--; wskb--;}
+        else if(odliczB>0) {maska_pom=(*wskb<<4); maska_pom=(maska_pom>>4); cyfraB=maska_pom; odliczB--;}
+        else cyfraB=0;
+
+        wynik=cyfraA+cyfraB+bufor;
+        bufor=0;
+
+        if (wynik>9)
+            {
+                wynik=wynik-10;
+                bufor=1;
+            }
+        if (odliczC%2)
+            {
+                maska_pom=maska_pom>>8;
+                maska_pom=wynik;
+                maska_pom=maska_pom<<4;
+                *wskc=(maska_pom|*wskc);
+                wskc--;
+                odliczC--;
+            }
+         else if (odliczC>0)
+            {
+                maska_pom=maska_pom>>8;
+                maska_pom=wynik;
+                *wskc=maska_pom;
+                odliczC--;
+            }
+        if ((odliczC==0)&&(bufor==1)) {reallocate(C); break;}
+    }
+   return C;
+}
+
+///=====================================================================================KONSTRUKTOR KOPIUJACY
+liczba::liczba(const liczba&x)
+{
+  this->dl=x.dl;
+  this->znak=x.znak;
+     unsigned int dlugosc_tab= (this->dl%2)==0? this->dl/2 : (this->dl/2)+1;
+
+     this->poczatek= new unsigned char[dlugosc_tab];
+     unsigned char *wsk=this->poczatek;
+     unsigned char *wsk2=x.poczatek;
+
+     for(unsigned int i=0; i<dlugosc_tab; i++)
+        {
+         *wsk=*wsk2;
+         wsk2++;
+         wsk++;
+        }
+}
+
+///==========================================================================================OPERATOR=
+liczba & liczba::operator=(const liczba &x)
+{
+    if (this==&x) return *this;
+
+    if (this->dl) delete [] this->poczatek;
+    this->dl=x.dl;
+    this->znak=x.znak;
+
+     unsigned int dlugosc_tab= ((this->dl%2)==0)? this->dl/2 : (this->dl/2)+1;
+
+     this->poczatek= new unsigned char[dlugosc_tab];
+     unsigned char *wsk=this->poczatek;
+     unsigned char *wsk2=x.poczatek;
+
+     for(unsigned int i=0; i<dlugosc_tab; i++)
+        {
+         *wsk=*wsk2;
+         wsk2++;
+         wsk++;
+        }
+    return *this;
+}
+
+///==================================================================================OPERATOR=
+liczba2 & liczba2::operator=(const liczba2 &x)
+{
+    if (this==&x) return *this;
+    if (this->dl) delete [] this->poczatek;
+    this->dl=x.dl;
+    this->znak=x.znak;
+
+     unsigned int dlugosc_tab= ((this->dl%2)==0) ? this->dl/2 : (this->dl/2)+1;
+
+     this->poczatek= new unsigned char[dlugosc_tab];
+     unsigned char *wsk=this->poczatek;
+     unsigned char *wsk2=x.poczatek;
+
+     for(unsigned int i=0; i<dlugosc_tab; i++)
+        {
+         *wsk=*wsk2;
+         wsk2++;
+         wsk++;
+        }
+
+    return *this;
+}
+///==========================================================================================OPERATOR=
+liczba2 & liczba2::operator=(const liczba &x)
+{
+
+    if (this==&x) return *this;
+    if (this->dl) delete [] this->poczatek;
+    this->dl=x.dl;
+    this->znak=x.znak;
+
+     unsigned int dlugosc_tab= (this->dl%2)==0? this->dl/2 : (this->dl/2)+1;
+
+     this->poczatek= new unsigned char[dlugosc_tab];
+     unsigned char *wsk=this->poczatek;
+     unsigned char *wsk2=x.poczatek;
+
+     for(unsigned int i=0; i<dlugosc_tab; i++)
+        {
+         *wsk=*wsk2;
+         wsk2++;
+         wsk++;
+        }
+
+    return *this;
+}
+
+///=====================================================================================OPERATOR>>
+istream& operator>>(istream & str, liczba & x)
+{
+    char plusminus;
+
+    if (x.dl) delete [] x.poczatek;
+    unsigned int maska0='\007';
+    maska0=maska0>>8;
+
+    int cyfra1;
+    int cyfra2;
+    char q;
+
+    string napis;
+    str.get(plusminus);
+    if (plusminus=='+')
+        x.znak='+';
+    else if (plusminus=='-')
+        x.znak='-';
+    else
+    {
+        napis=napis+plusminus;
+        x.znak='+';
+    }
+
+    while (str.get(q) && q!='\n') napis=napis+q;
+    unsigned int dlugosc_liczby=napis.size();
+    x.dl=dlugosc_liczby;
+
+    unsigned int dlugosc_tab= (napis.size()%2)==0? napis.size()/2 : (napis.size()/2)+1;
+
+    unsigned char* wsk= new unsigned char[dlugosc_tab];
+    x.poczatek=wsk;
+
+    for(unsigned int i=0; i<dlugosc_liczby; i=i+2)
+
+            {
+               cyfra1=napis.at(i)-'0';
+
+               if (i<dlugosc_liczby-1) cyfra2=napis.at(i+1)-'0';
+               else cyfra2=0;
+
+
+               *wsk=((*wsk)&maska0);
+               *wsk=(*wsk|cyfra1);
+               *wsk=    *wsk<<4;
+               *wsk=(*wsk|cyfra2);
+
+               wsk++;
+            }
+wsk=x.poczatek;
+    return str;
+}
+
+///====================================================================================OPERATOR<<
+ostream & operator<<(ostream& str, liczba &x)
+{
+
+   unsigned char *wsk=x.poczatek;
+   unsigned char maska;
+   unsigned int dlugosc=x.dl;
+   unsigned int i=1;
+   unsigned char znak;
+   maska='\017';
+
+   str<<x.znak;
+   while(i<=dlugosc)
+   {
+       if (i%2)
+            {
+                str<<(*wsk>>4);
+            }
+       else
+            {
+                str<<int((*wsk)&(maska));
+                wsk++;
+            }
+        i++;
+   }
+   return str;
+}
+
+///======================================================================================RELOCATE
+liczba2 relocate(liczba2&x,unsigned int i)
+{
+    int przesuniecie=x.dl-i;
+    liczba2 d;
+    if (i%2) d.poczatek=new unsigned char[(i/2)+1];
+    else d.poczatek=new unsigned char[i/2];
+    d.dl=i;
+    d.znak=x.znak;
+    unsigned char *wsk=x.poczatek;
+    unsigned char *wskd=d.poczatek;
+    if(przesuniecie==2) wsk=wsk+1;
+    unsigned int k;
+    unsigned char znak;
+    for(k=1; k<=i; k++)
+    {
+        if (k%2)
+        {
+            if (przesuniecie==1)
+            {
+                *wskd=(*wsk<<4);
+                wsk++;
+            }
+            else
+            {
+                znak=*wsk;
+                znak=(znak>>4);
+                *wskd=(znak<<4);
+            }
+        }
+
+        else
+        {
+            if(przesuniecie==1)
+            {
+                *wskd=*wskd|(*wsk>>4);
+            }
+            else
+            {
+                znak=*wsk;
+                znak=znak<<4;
+                *wskd=*wskd|(znak>>4);
+                wsk++;
+            }
+            wskd++;
+        }
+    }
+
+    x.~liczba();
+    return d;
+}
+
+///===============================================================================================OPERATOR*
+liczba2 operator*(const liczba2&a, const liczba2 &b)
+{
+    liczba2 c;
+
+    if(((a.dl==1)&&((*a.poczatek>>4)==0))||((b.dl==1)&&((*b.poczatek>>4)==0))) {return c;}
+    if((a.znak=='-' && b.znak=='+') || (a.znak=='+' && b.znak=='-')) c.znak='-';
+    unsigned char *wskc;
+
+    c.dl=a.dl+b.dl;
+    if(c.dl%2) wskc=new unsigned char [((a.dl+b.dl)/2)+1];
+    else wskc=new unsigned char [((a.dl+b.dl)/2)];
+
+    c.poczatek=wskc;
+
+    unsigned char *wska,*wskb,* pom, *konc_b,*kon_c;
+
+    wska=a.poczatek;
+    wskb=b.poczatek;
+    pom=wskc;
+
+    if (a.dl%2) wska=wska+(a.dl/2);
+    else wska=wska+((a.dl/2)-1);
+
+    if (b.dl%2) wskb=wskb+(b.dl/2);
+    else wskb=wskb+((b.dl/2)-1);
+
+    konc_b=wskb;
+
+    if(c.dl%2) wskc=wskc+(((a.dl+b.dl)/2));
+    else wskc=wskc+((a.dl+b.dl)/2)-1;
+
+    unsigned char *wsk_wynik=wskc;
+    unsigned int itera,ia,ib, iterb;
+    unsigned int i=1,j=0;
+
+    if(c.dl%2)
+    {
+        for(i=1; i<=(c.dl/2)+1; i++)
+        {
+            *pom=(*pom>>8);
+            pom++;
+        }
+    }
+    else
+    {
+        for(i=1; i<=(c.dl/2); i++)
+        {
+            *pom=(*pom>>8);
+            pom++;
+        }
+    }
+    pom--;
+    kon_c=pom;
+
+    if(a.dl%2==0)
+    {
+        itera=0;
+        ia=0;
+    }
+    else
+    {
+        itera=1;
+        ia=1;
+    }
+    if (b.dl%2==0)
+    {
+        iterb=0;
+        ib=0;
+    }
+    else
+    {
+        iterb=1;
+        ib=1;
+    }
+    int cyfra_a, cyfra_b, cyfra_c;
+    unsigned char znak;
+    unsigned char maska_lewa=15, maska_prawa=15;
+    maska_lewa=maska_lewa<<4;
+    int bufor=0, wynik=0;
+
+    i=1;
+    for (ia; itera<a.dl+ia; itera++)
+    {
+        bufor=0;
+        wynik=0;
+
+        if(itera%2==0)
+        {
+            znak=(*wska<<4);
+            cyfra_a=int(znak>>4);
+        }
+        else
+        {
+            cyfra_a=(*wska>>4);
+            wska--;
+        }
+
+        for(ib,j=0; iterb<b.dl+ib; iterb++,j++)
+        {
+            if(iterb%2==0)
+            {
+                znak=(*wskb<<4);
+                cyfra_b=int(znak>>4);
+            }
+            else
+            {
+                cyfra_b=(*wskb>>4);
+                wskb--;
+            }
+            if((i+j)%2)
+            {
+                znak=*pom<<4;
+                cyfra_c=int(znak>>4);
+            }
+            else
+            {
+                cyfra_c=int(*pom>>4);
+            }
+
+            wynik=(cyfra_a*cyfra_b)+cyfra_c+bufor;
+
+            if(wynik>9)
+            {
+                bufor=wynik/10;
+                wynik=wynik%10;
+            }
+            else bufor=0;
+
+            if((i+j)%2)
+            {
+                *pom=wynik|(*pom&maska_lewa);
+            }
+            else
+            {
+                *pom=(*pom&maska_prawa)|(wynik<<4);
+                pom--;
+            }
+        }
+        if(bufor>0)
+        {
+            if((i+j)%2)
+            {
+                znak=*pom<<4;
+                cyfra_c=int(znak>>4);
+            }
+            else
+            {
+                cyfra_c=int(*pom>>4);
+            }
+            if((i+j)%2)
+            {
+                *pom=bufor|(*pom&maska_lewa);
+            }
+            else
+            {
+                *pom=(*pom&maska_prawa)|(bufor<<4);
+                pom--;
+            }
+
+        }
+
+        iterb=ib;
+
+        wskb=konc_b;
+
+        if(i%2==0)
+        {
+            kon_c=kon_c--;
+        }
+        i++;
+
+        pom=kon_c;
+    }
+
+if(c.dl%2) c.dl=c.dl+1;
+
+    while(((*c.poczatek>>4)==0)&&(c.dl>1))
+        c=relocate(c,c.dl-1);
+    return c;
+}
+
+///======================================================================================OPERATOR==
+bool operator==(const liczba2 &a, const liczba2& b)
+{
+    if (a.dl!=b.dl) return false;
+    if(a.znak!=b.znak) return false;
+
+    unsigned char *wska=a.poczatek;
+    unsigned char *wskb=b.poczatek;
+
+    for(unsigned int i=1; i<=a.dl; i++)
+    {
+        if (i%2)
+        {
+            if ((*wska>>4)!=(*wskb>>4)) return false;
+        }
+        else
+        {
+            if ((*wska<<4)!=(*wskb<<4)) return false;
+            wska++;
+            wskb++;
+        }
+    }
+    return true;
+}
+
+///================================================================================================OPERATOR-
+liczba operator-(const liczba &a, const liczba &b)
+{
+    unsigned char maska_lewa, maska_prawa,maska_pom, maska_pusta;
+    unsigned int dl_a, dl_b, dl_tab,przesuniecie_a, przesuniecie_b,przesuniecie_c, odliczA, odliczB, odliczC, wolne=0;
+    unsigned char *wska, *wskb, *wskc;
+    int bufor, wynik;
+    int cyfraA, cyfraB;
+
+    maska_pusta='\007';
+    maska_pusta=maska_pusta>>8;
+
+    dl_a=a.dl;
+    dl_b=b.dl;
+    if((b.dl==1)&&(*b.poczatek==0))
+    {
+        liczba c(a);
+        if ((a.dl==1)&&(*a.poczatek==0)) c.znak='+';
+        return c;
+    }
+
+    liczba C;
+
+   if((a.znak=='+')&&(b.znak=='+'))
+    {
+        if(mniejszy_modul(a,b))
+        {
+            C=b-a;
+            C.znak='-';
+            return C;
+        }
+    }
+    if((a.znak=='-')&&(b.znak=='-'))
+    {
+        if (mniejszy_modul(a,b))
+        {
+            C=b-a;
+            C.znak='+';
+            return C;
+        }
+        else C.znak='-';
+    }
+    if ((a.znak=='+')&&(b.znak=='-'))
+    {
+        liczba d=b;
+        d.znak='+';
+        C=a+d;
+        C.znak='+';
+        return C;
+    }
+
+    if ((a.znak=='-')&&(b.znak=='+'))
+    {
+        liczba d=a;
+        d.znak='+';
+        C=d+b;
+        C.znak='-';
+        return C;
+    }
+
+    dl_tab=C.dl= (dl_a>dl_b) ? dl_a : dl_b;
+    if (dl_tab%2) dl_tab=(dl_tab/2)+1;
+    else dl_tab=dl_tab/2;
+
+    przesuniecie_a=(dl_a%2) ? dl_a/2 : (dl_a/2)-1;
+    przesuniecie_b=(dl_b%2) ? dl_b/2 : (dl_b/2)-1;
+    przesuniecie_c=(C.dl%2) ? C.dl/2 : (C.dl/2)-1;
+
+    wska=a.poczatek+przesuniecie_a;
+    wskb=b.poczatek+przesuniecie_b;
+
+    C.poczatek=new unsigned char [dl_tab];
+    wskc=C.poczatek;
+
+    *wskc=maska_pusta;
+    wskc=wskc+przesuniecie_c;
+    *wskc=maska_pusta;
+
+    odliczA=dl_a;
+    odliczB=dl_b;
+    odliczC=C.dl;
+    bufor=0;
+
+    while(odliczA>0)
+    {
+        if ((odliczA>0)&&(odliczA %2))
+        {
+            maska_pom=(*wska>>4);
+            cyfraA=maska_pom;
+            odliczA--;
+            wska--;
+        }
+        else if(odliczA>0)
+        {
+            maska_pom=(*wska<<4);
+            maska_pom=(maska_pom>>4);
+            cyfraA=maska_pom;
+            odliczA--;
+        }
+
+        if ((odliczB>0)&&(odliczB %2))
+        {
+            maska_pom=(*wskb>>4);
+            cyfraB=maska_pom;
+            odliczB--;
+            wskb--;
+        }
+        else if(odliczB>0)
+        {
+            maska_pom=(*wskb<<4);
+            maska_pom=(maska_pom>>4);
+            cyfraB=maska_pom;
+            odliczB--;
+        }
+        else cyfraB=0;
+
+
+        wynik=cyfraA-cyfraB-bufor;
+
+        bufor=0;
+        if (wynik>0)
+        {
+            wolne=0;
+        }
+
+        if ((odliczC==1)&&(wynik<=0))
+        {
+            if ((wynik==0)&&(wolne==C.dl-1))
+            {
+                C.~liczba();
+                liczba F;
+                return F;
+            }
+
+            if (wynik==0) wolne=wolne+1;
+            reallocate2(C, wolne);
+        }
+        if (wynik==0) wolne++;
+
+        if (wynik<0)
+        {
+            wynik=wynik+10;
+            bufor=1;
+            if (wynik==0) wolne=wolne+1;
+            else wolne=0;
+        }
+        if (odliczC%2)
+        {
+            maska_pom=maska_pom>>8;
+            maska_pom=wynik;
+            maska_pom=maska_pom<<4;
+
+            *wskc=(maska_pom|*wskc);
+
+            wskc--;
+            odliczC--;
+        }
+        else if (odliczC>0)
+        {
+            maska_pom=maska_pom>>8;
+            maska_pom=wynik;
+            *wskc=maska_pom;
+
+            odliczC--;
+        }
+    }
+    return C;
+}
+
+///===========================================================================================OPERATOR%
+liczba2 operator%(const liczba2&a, const liczba2 &b)
+{
+   liczba2 c;
+
+   if((b.dl==1)&&(*b.poczatek==0)) {cout<<"Nie dzielimy przez 0!"<<endl; return c;}
+   liczba2 d;
+
+   while (c<a)
+   {
+       d=c;
+       c=c+b;
+   }
+
+   if(c==a) {liczba2 z; return z;}
+   liczba2 v;
+
+   v=a-d;
+
+   return v;
+}
+///========================================================================================OBETNIJ KONIEC
+void obetnij_koniec(liczba2&a, unsigned int i)
+{
+    if (i==0) return;
+    liczba2 b;
+    b.dl=a.dl-i;
+    b.znak=a.znak;
+    unsigned char *wskb, *wska=a.poczatek, kratka;
+
+    if(b.dl%2) b.poczatek=new unsigned char [(b.dl/2)+1];
+    else b.poczatek=new unsigned char [b.dl/2];
+    wskb=b.poczatek;
+
+    for(unsigned int k=1; k<=b.dl; k++)
+    {
+        if(k%2)
+            {
+                kratka=(*wska>>4);
+                *wskb=kratka<<4;
+            }
+        else
+            {
+                kratka=*wska<<4;
+                *wskb=*wskb|(kratka>>4);
+                wska++;
+                wskb++;
+            }
+    }
+
+    delete [] a.poczatek;
+    a.dl=b.dl;
+
+    if(b.dl%2) a.poczatek=new unsigned char [(a.dl/2)+1];
+    else a.poczatek=new unsigned char [a.dl/2];
+
+    wska=a.poczatek;
+    wskb=b.poczatek;
+
+    for(unsigned int k=1; k<=b.dl; k++)
+    {
+        if(k%2)
+            {
+                kratka=(*wskb>>4);
+                *wska=kratka<<4;
+            }
+        else
+            {
+                kratka=*wskb<<4;
+                *wska=*wska|(kratka>>4);
+                wska++;
+                wskb++;
+            }
+    }
+  return;
+}
+
+///=====================================================================================PODZIEL
+liczba2& podziel(liczba2&a, const liczba2 &b)
+{
+   liczba2 c;
+   liczba2 e;
+
+   if((b.dl==1)&&(*b.poczatek==0)) {cout<<"Nie dzielimy przez 0!"<<endl; return a;}
+   liczba2 d;
+
+   *d.poczatek=(1<<4);
+   c=c+b;
+
+   while (c<a)
+    {
+       e=e+d;
+       c=c+b;
+    }
+
+
+   if(c==a) e=e+d;
+   a=e;
+
+   return a;
+}
+
+///===============================================================================ZAMIANA STRINGA NA LICZBE
+void konwertuj(string& a, liczba2& x)
+{
+   delete [] x.poczatek;
+   x.dl=a.size();
+   x.poczatek = new unsigned char [(x.dl/2)+1];
+
+   unsigned char *wsk=x.poczatek;
+   int cyfra;
+
+   for(unsigned int i=0; i<x.dl; i++)
+    {
+        cyfra=a.at(i)-'0';
+        if(i%2==0)
+            {
+              *wsk=cyfra<<4;
+            }
+        else
+            {
+               *wsk=*wsk|cyfra;
+               wsk++;
+            }
+    }
+}
+
+///=====================================================================================OPERATOR/
+liczba2 operator/(const liczba2&aa, const liczba2 &bb)
+{
+   liczba2 wynik,dzielna, kopia,wyn_czast,reszta, dziesiec,poml,zero, pom2, pom3,pom4,bplus;
+   *dziesiec.poczatek=(1<<4);
+   dziesiec.dl=2;
+
+   if((bb.dl==1)&&(*bb.poczatek==0)) {cout<<"Nie dzielimy przez 0!"<<endl; liczba2 s; return s;}
+   if((aa.dl==1)&&(*aa.poczatek==0)) {liczba2 s; return s;}
+   if(aa.dl<bb.dl) {liczba2 s; return s;}
+   //if (a.znak=='+' && b.znak=='+') if(a<b) {liczba2 s; return s;}
+   //if (a.znak=='-' && b.znak=='-') if(b<a) {liczba2 s; return s;}
+  liczba2 a,b;
+  a=aa;
+  b=bb;
+  a.znak='+';
+  b.znak='+';
+
+   wynik.poczatek=new unsigned char [(a.dl/2)+1];
+   wynik.dl=a.dl;
+   unsigned char *wsk=a.poczatek, *wsk2;
+   string napis_a, napis_b, napis_czesc;
+   unsigned int odlicz=a.dl, i,k,m,k2,p,wolne;
+   char q;
+   unsigned char w, kratka;
+   bplus=b;
+   bplus.znak='+';
+
+
+   int cyfra;
+   for(i=1; i<=a.dl; i++)
+   {
+       if(i%2)
+            {
+              cyfra=int(*wsk>>4);
+              q=char(cyfra);
+              q=q+48;
+            }
+       else
+            {
+              w=*wsk<<4;
+              w=w>>4;
+              cyfra=int(w);
+              q=char(cyfra);
+              q=q+48;
+              wsk++;
+            }
+       napis_a=napis_a+q;
+   }
+
+   wsk=b.poczatek;
+
+   for(i=1; i<=b.dl; i++)
+   {
+       if(i%2)
+            {
+              cyfra=int(*wsk>>4);
+              q=char(cyfra);
+              q=q+48;
+            }
+       else
+            {
+              w=*wsk<<4;
+              w=w>>4;
+              cyfra=int(w);
+              q=char(cyfra);
+              q=q+48;
+              wsk++;
+            }
+       napis_b=napis_b+q;
+
+   }
+
+   wsk=wynik.poczatek;
+   i=0;
+   m=0;
+   k=0;
+   int war=0;
+
+   while(i<a.dl)
+    {
+
+            if(k==0) napis_czesc = napis_a.at(i);
+            else napis_czesc=napis_czesc + napis_a.at(i);
+
+                  if((i+1>=b.dl)||(napis_czesc[0]!='0'))
+                  {
+                    k=1;
+
+                    konwertuj(napis_czesc, dzielna);
+
+                    kopia=dzielna;
+
+                    wyn_czast=podziel(dzielna,bplus);
+
+                    reszta=wyn_czast*bplus;
+
+                    pom4=kopia-reszta;
+
+                    if(zero<pom4)
+                            {
+                              napis_czesc="";
+
+                              unsigned char znak;
+                              wsk2=pom4.poczatek;
+                              unsigned char licz;
+                              int zn;
+                              string zamienny;
+
+                              for(p=0; p<pom4.dl; p++)
+                                    {
+                                        if((p%2)==0)
+                                            licz=(*wsk2)>>4;
+                                        else {
+                                                licz=((*wsk2)<<4);
+                                                licz=(licz>>4);
+                                                wsk2++;
+                                             }
+                                            zn=int(licz);
+                                            if(zn==0) zamienny="0";
+                                            else if(zn==1) zamienny="1";
+                                            else if(zn==2) zamienny="2";
+                                            else if(zn==3) zamienny="3";
+                                            else if(zn==4) zamienny="4";
+                                            else if(zn==5) zamienny="5";
+                                            else if(zn==6) zamienny="6";
+                                            else if(zn==7) zamienny="7";
+                                            else if(zn==8) zamienny="8";
+                                            else if(zn==9) zamienny="9";
+
+                                      if(p==0) napis_czesc=zamienny;
+                                     else napis_czesc=napis_czesc+zamienny;
+                                    }
+                            }
+                    else k=0;
+
+                    if((m>0)||((m==0)&&(zero<wyn_czast)))
+                    {
+                        if(m%2)
+                            {
+                                *wsk=*wsk|(*wyn_czast.poczatek)>>4;
+                                wsk++;
+                            }
+                        else
+                            {
+                                kratka=*wyn_czast.poczatek;
+                                kratka=kratka>>4;
+                                *wsk=kratka<<4;
+                            }
+                         m++;
+                    }
+                  }
+         i++;
+    }
+    if(((aa.znak=='+') && bb.znak=='-') || ((aa.znak=='-') && bb.znak=='+')) wynik.znak='-';
+    else wynik.znak='+';
+
+    obetnij_koniec(wynik,a.dl-m);
+
+  return wynik;
+ }
+///======================================================================================================
+///======================================================================================================
+
+
+
+///========REKURENCYJNIE==============
+/*
+liczba2 operator%(const liczba2&a, const liczba2 &b)
+{
+
+   liczba2 c;
+    if((b.dl==1)&&(*b.poczatek==0)) {cout<<"Nie dzielimy przez 0!"<<endl; return c;}
+   liczba2 d;
+   *c.poczatek=(1<<4);
+   while (c<a)
+   {
+
+       d=c;
+       c=c*b;
+   }
+    if(c==a) {liczba2 z; return z;}
+   c=a-d;
+
+   if(b<c)
+    {
+       d=c%b;
+       c=d;
+    }
+   return c;
+
+}
+*/
+
+
+/*liczba2::liczba2(const liczba2&x)
+{
+  this->dl=x.dl;
+     unsigned int dlugosc_tab= (this->dl%2)==0? this->dl/2 : (this->dl/2)+1;
+
+     this->poczatek= new unsigned char[dlugosc_tab];
+     unsigned char *wsk=this->poczatek;
+     unsigned char *wsk2=x.poczatek;
+
+     for(unsigned int i=0; i<dlugosc_tab; i++)
+        {
+         *wsk=*wsk2;
+         wsk2++;
+         wsk++;
+        }
+}
+*/
+
+
+/*
+liczba2::liczba2(const liczba&x)
+{
+  this->dl=x.dl;
+     unsigned int dlugosc_tab= (this->dl%2)==0? this->dl/2 : (this->dl/2)+1;
+
+     this->poczatek= new unsigned char[dlugosc_tab];
+     unsigned char *wsk=this->poczatek;
+     unsigned char *wsk2=x.poczatek;
+
+     for(unsigned int i=0; i<dlugosc_tab; i++)
+        {
+         *wsk=*wsk2;
+         wsk2++;
+         wsk++;
+        }
+}
+*/
